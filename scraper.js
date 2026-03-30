@@ -244,33 +244,64 @@ async function getRoundDetails(page, fighter1, fighter2) {
   } catch { return []; }
 }
 
-async function getYoutubeVideo(page, fighter1, fighter2) {
+// UFC's official YouTube channel ID
+const UFC_CHANNEL_ID = 'UCvgfXK4nTYKuef0n6C_OxsA';
+
+async function getYoutubeVideo(fighter1, fighter2) {
   try {
-    const query = encodeURIComponent(`${fighter1} vs ${fighter2} UFC full fight highlights`);
-    await page.goto(`https://www.youtube.com/results?search_query=${query}`, {
-      waitUntil: 'domcontentloaded', timeout: 20000
-    });
-    // Wait for video results to render
-    await page.waitForSelector('ytd-video-renderer, #video-title', { timeout: 8000 }).catch(() => {});
-    await page.waitForTimeout(1500);
+    const f1Last = fighter1.split(' ').pop();
+    const f2Last = fighter2.split(' ').pop();
+    const query = encodeURIComponent(`${f1Last} ${f2Last} UFC`);
 
-    const videoId = await page.evaluate(() => {
-      // Try rendered links first
-      const links = Array.from(document.querySelectorAll('a#video-title, a[href*="/watch?v="]'));
-      for (const a of links) {
-        const m = (a.href || '').match(/[?&]v=([a-zA-Z0-9_-]{11})/);
-        if (m) return m[1];
+    const res = await fetch(`https://www.youtube.com/results?search_query=${query}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       }
-      // Fallback: ytInitialData in page scripts
-      const scripts = Array.from(document.querySelectorAll('script'));
-      for (const s of scripts) {
-        const matches = [...s.textContent.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
-        if (matches.length > 0) return matches[0][1];
-      }
-      return null;
     });
+    const html = await res.text();
 
-    return videoId;
+    // Parse ytInitialData from page source
+    let contents = [];
+    const dataMatch = html.match(/var ytInitialData\s*=\s*(\{[\s\S]+?\});\s*<\/script>/);
+    if (dataMatch) {
+      try {
+        const yt = JSON.parse(dataMatch[1]);
+        contents = yt?.contents?.twoColumnSearchResultsRenderer?.primaryContents
+          ?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents || [];
+      } catch {}
+    }
+
+    // Priority 1: UFC official channel video with both fighter names in title
+    for (const item of contents) {
+      const vr = item.videoRenderer;
+      if (!vr?.videoId) continue;
+      const channelId = vr.ownerText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId;
+      const title = vr.title?.runs?.[0]?.text?.toLowerCase() || '';
+      if (channelId === UFC_CHANNEL_ID && title.includes(f1Last.toLowerCase()) && title.includes(f2Last.toLowerCase()))
+        return vr.videoId;
+    }
+    // Priority 2: UFC official channel, either fighter name
+    for (const item of contents) {
+      const vr = item.videoRenderer;
+      if (!vr?.videoId) continue;
+      const channelId = vr.ownerText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId;
+      const title = vr.title?.runs?.[0]?.text?.toLowerCase() || '';
+      if (channelId === UFC_CHANNEL_ID && (title.includes(f1Last.toLowerCase()) || title.includes(f2Last.toLowerCase())))
+        return vr.videoId;
+    }
+    // Priority 3: Any UFC channel video
+    for (const item of contents) {
+      const vr = item.videoRenderer;
+      if (!vr?.videoId) continue;
+      const channelId = vr.ownerText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId;
+      if (channelId === UFC_CHANNEL_ID) return vr.videoId;
+    }
+    // Fallback: any video from search
+    const allIds = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
+    return allIds[0]?.[1] || null;
+
   } catch { return null; }
 }
 
@@ -337,7 +368,7 @@ async function main() {
         fight.rounds = await getRoundDetails(page, fight.fighter1, fight.fighter2);
       }
 
-      fight.youtubeVideoId = await getYoutubeVideo(page, fight.fighter1, fight.fighter2);
+      fight.youtubeVideoId = await getYoutubeVideo(fight.fighter1, fight.fighter2);
       console.log(`     YouTube: ${fight.youtubeVideoId || 'bulunamadı'}`);
     }
 
