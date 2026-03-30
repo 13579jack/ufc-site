@@ -39,6 +39,14 @@ const BASE_STYLE = `
     transition:background .25s;
   }
   html[data-theme="light"] nav{background:rgba(240,240,240,.97);box-shadow:0 2px 20px rgba(0,0,0,.12);}
+  @media(max-width:640px){
+    nav{height:60px;padding:0 14px;gap:10px;}
+    .nav-logo-img{height:38px;}
+    .nav-title,.nav-date{display:none;}
+    .nav-link{font-size:11px;padding:5px 10px;letter-spacing:.5px;}
+    .nav-back{font-size:12px;padding:6px 12px;}
+    footer{padding:24px 16px;}
+  }
   .nav-logo-wrap{display:flex;align-items:center;text-decoration:none;}
   .nav-logo-img{
     height:58px;width:auto;
@@ -354,6 +362,31 @@ ${BASE_STYLE}
 
 .fcard-footer{padding:9px 22px;border-top:1px solid rgba(255,255,255,.04);font-size:11px;color:#222;text-align:right;letter-spacing:.5px;transition:color .2s;}
 .fcard:hover .fcard-footer{color:var(--text3);}
+@media(max-width:640px){
+  .filter-bar{top:60px;height:auto;padding:8px 12px;flex-wrap:wrap;gap:8px;overflow-x:auto;}
+  .fsep{display:none;}
+  .search-input{width:160px;}
+  .weight-select{font-size:10px;padding:6px 8px;}
+  .filter-count{margin-left:0;font-size:10px;}
+  .ev{padding:32px 14px 40px;}
+  .fcard-body{grid-template-columns:1fr 44px 1fr;padding:10px 14px 12px;gap:3px;}
+  .fcard-photo,.fcard-photo-empty{width:64px;height:82px;border-radius:6px;}
+  .fcard:first-child .fcard-photo{width:70px;height:90px;}
+  .fcard-fighter{gap:8px;}
+  .fcard-fname{font-size:13px!important;}
+  .fcard-rec{font-size:10px;}
+  .fcard-flag{width:22px;height:15px;}
+  .fcard-winner-label{font-size:9px;}
+  .fcard-vs{font-size:11px;letter-spacing:2px;}
+  .fcard-top{padding:9px 14px 3px;}
+  .fcard-countdown{padding:8px 14px;gap:8px;}
+  .fcd-val{font-size:18px;min-width:70px;}
+  .fcard-vote{padding:10px 14px;}
+  .fv-btn{font-size:13px;}
+  .fcard-footer{padding:7px 14px;font-size:10px;}
+  .ev-name{font-size:clamp(20px,6vw,36px)!important;}
+  .ev-head{margin-bottom:22px;}
+}
 </style>
 </head>
 <body>
@@ -732,6 +765,38 @@ ${BASE_STYLE}
 .dc-unit{display:flex;flex-direction:column;align-items:center;gap:4px;}
 .dc-val{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;color:var(--red);line-height:1;}
 .dc-label{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+@media(max-width:640px){
+  .hero-inner{min-height:220px;padding:0 10px;}
+  .hf-img{width:min(130px,30vw);}
+  .hm{padding-bottom:28px;width:44px;}
+  .hm-vs{font-size:11px;letter-spacing:3px;}
+  .hm-wt{font-size:8px;}
+  .hf-name{font-size:clamp(16px,5vw,26px)!important;}
+  .hf-info{padding:10px 6px 16px;gap:4px;}
+  .hf-rec{font-size:14px;}
+  .hf-win-badge{font-size:11px;padding:4px 12px;}
+  .result-bar{overflow-x:auto;}
+  .rb-cell{padding:12px 18px;}
+  .rb-val{font-size:20px;}
+  .info-bar{overflow-x:auto;flex-wrap:nowrap;padding:10px 14px;gap:16px;}
+  .ib-v{font-size:11px;white-space:nowrap;}
+  .ib-l{font-size:8px;}
+  .dbody{padding:24px 14px 60px;}
+  .ct-header,.ct-row{padding:10px 14px;}
+  .ct-val{font-size:13px;}
+  .ct-label{font-size:9px;}
+  .sc-head,.sc-row,.sc-total-row{grid-template-columns:1fr 90px 1fr;padding:10px 14px;}
+  .sc-score{font-size:26px;}
+  .sc-total{font-size:30px;}
+  .odds-row{padding:14px 14px;}
+  .or-name{font-size:16px;}
+  .or-val{font-size:26px;}
+  .dv-btn{padding:20px 12px;gap:8px;}
+  .dv-photo{width:72px;height:94px;}
+  .dv-name{font-size:16px;}
+  .detail-countdown{gap:20px;padding:14px;}
+  .dc-val{font-size:30px;}
+}
 </style>
 </head>
 <body>
@@ -1019,6 +1084,20 @@ ${BASE_STYLE}
 .cfr-det{font-size:10px;color:var(--text3);}
 
 .cmp-placeholder{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;font-style:italic;}
+@media(max-width:640px){
+  .cmp-hero{padding:24px 14px 0;}
+  .sel-wrap{grid-template-columns:1fr;border-radius:12px 12px 0 0;}
+  .sel-panel+.sel-panel{border-left:none;border-top:1px solid var(--border);}
+  .sel-vs{padding:10px 8px;}
+  .sel-list{height:200px;}
+  .cmp-fh-photo{width:min(80px,20vw);}
+  .cmp-fh{padding:14px 8px;}
+  .cmp-fh-name{font-size:clamp(14px,3.5vw,22px)!important;}
+  .cmp-val{padding:10px 12px;font-size:13px;}
+  .cmp-fights-grid{grid-template-columns:1fr;}
+  .cmp-fights-col+.cmp-fights-col{border-left:none;border-top:1px solid var(--border);}
+  .cmp-outer{padding:0 14px 60px!important;}
+}
 </style>
 </head>
 <body>
@@ -1053,7 +1132,7 @@ ${BASE_STYLE}
   </div>
 </div>
 
-<div style="max-width:1100px;margin:0 auto;padding:0 40px 100px;">
+<div class="cmp-outer" style="max-width:1100px;margin:0 auto;padding:0 40px 100px;">
   <div class="cmp-result" id="cmp-result">
     <div class="cmp-placeholder" id="cmp-ph">İki dövüşçü seçerek karşılaştırmayı başlat</div>
     <div id="cmp-content" style="display:none"></div>
