@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UFC Sıralamaları</title>
+<style>
+
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap');
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --red:#D20A0A;--red2:#ff1a1a;--gold:#F5C518;
+    --bg:#070707;--bg2:#0d0d0d;--bg3:#111;
+    --card:rgba(255,255,255,.03);
+    --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.14);
+    --text:#f0f0f0;--text2:#999;--text3:#444;
+  }
+  html[data-theme="light"]{
+    --bg:#f0f0f0;--bg2:#e5e5e5;--bg3:#d8d8d8;
+    --card:rgba(0,0,0,.04);
+    --border:rgba(0,0,0,.09);--border2:rgba(0,0,0,.18);
+    --text:#111;--text2:#555;--text3:#999;
+  }
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Barlow','Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);
+    min-height:100vh;overflow-x:hidden;
+    animation:pgIn .38s cubic-bezier(.22,1,.36,1) both;
+    transition:background .25s,color .25s;
+  }
+  @keyframes pgIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes pgOut{from{opacity:1}to{opacity:0;transform:scale(.97) translateY(-8px)}}
+  body.leaving{animation:pgOut .22s ease both;pointer-events:none;}
+
+  nav{
+    position:sticky;top:0;z-index:500;height:80px;
+    background:rgba(7,7,7,.97);border-bottom:2px solid var(--red);
+    display:flex;align-items:center;padding:0 40px;gap:20px;
+    backdrop-filter:blur(24px) saturate(1.4);
+    box-shadow:0 4px 60px rgba(0,0,0,.8),0 1px 0 rgba(210,10,10,.3);
+    transition:background .25s;
+  }
+  html[data-theme="light"] nav{background:rgba(240,240,240,.97);box-shadow:0 2px 20px rgba(0,0,0,.12);}
+  @media(max-width:640px){
+    nav{height:60px;padding:0 14px;gap:10px;}
+    .nav-logo-img{height:38px;}
+    .nav-title,.nav-date{display:none;}
+    .nav-link{font-size:11px;padding:5px 10px;letter-spacing:.5px;}
+    .nav-back{font-size:12px;padding:6px 12px;}
+    footer{padding:24px 16px;}
+  }
+  .nav-logo-wrap{display:flex;align-items:center;text-decoration:none;}
+  .nav-logo-img{
+    height:58px;width:auto;
+    filter:drop-shadow(0 0 14px rgba(210,10,10,.7)) brightness(1.15);
+    transition:filter .3s;
+  }
+  .nav-logo-wrap:hover .nav-logo-img{filter:drop-shadow(0 0 22px rgba(210,10,10,1)) brightness(1.25);}
+  .nav-divider{width:1px;height:36px;background:rgba(255,255,255,.1);flex-shrink:0;}
+  html[data-theme="light"] .nav-divider{background:rgba(0,0,0,.12);}
+  .nav-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text2);letter-spacing:3px;text-transform:uppercase;}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+  .nav-date{font-size:11px;color:var(--text3);letter-spacing:.5px;}
+  .nav-back{
+    display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text2);
+    font-size:13px;font-weight:600;letter-spacing:.5px;
+    padding:7px 16px;border-radius:6px;border:1px solid var(--border2);transition:all .2s;
+  }
+  .nav-back:hover{color:#fff;border-color:var(--red);background:rgba(210,10,10,.12);}
+  .nav-event-name{
+    font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--text3);
+    text-transform:uppercase;letter-spacing:1.5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;
+  }
+  .nav-link{
+    display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--text2);
+    font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    padding:6px 14px;border-radius:6px;border:1px solid var(--border2);transition:all .2s;white-space:nowrap;
+  }
+  .nav-link:hover{color:#fff;border-color:var(--red);background:rgba(210,10,10,.12);}
+  .theme-toggle{
+    background:none;border:1px solid var(--border2);border-radius:8px;
+    color:var(--text2);cursor:pointer;padding:6px 11px;font-size:16px;
+    transition:all .2s;line-height:1;flex-shrink:0;
+  }
+  .theme-toggle:hover{border-color:var(--red);}
+  footer{
+    text-align:center;padding:52px 24px;
+    color:var(--text3);font-size:11px;letter-spacing:.8px;
+    border-top:1px solid rgba(255,255,255,.04);background:var(--bg2);
+  }
+
+.rk-hero{background:linear-gradient(180deg,#0c0000,var(--bg));padding:48px 40px 0;text-align:center;border-bottom:1px solid var(--border);}
+.rk-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,5vw,56px);font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.rk-sub{font-size:13px;color:var(--text3);margin-bottom:32px;}
+.rk-tabs{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;padding-bottom:0;}
+.rk-tab{
+  background:none;border:1px solid var(--border2);border-radius:8px;
+  color:var(--text2);cursor:pointer;padding:8px 22px;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  transition:all .18s;
+}
+.rk-tab.active{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 0 20px rgba(210,10,10,.3);}
+.rk-tab:not(.active):hover{border-color:var(--text2);color:var(--text);}
+
+.rk-body{max-width:960px;margin:0 auto;padding:40px 40px 100px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+.rk-group{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.rk-div{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.rk-div-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--text2);padding:14px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+}
+.rk-row{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;
+}
+.rk-row:last-child{border-bottom:none;}
+.rk-row:hover{background:rgba(255,255,255,.03);}
+.rk-num{
+  font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;
+  color:#333;min-width:28px;text-align:center;flex-shrink:0;
+}
+.rk-num.champ{
+  font-size:13px;color:#fff;background:var(--red);padding:3px 6px;border-radius:4px;
+  letter-spacing:1px;box-shadow:0 0 12px rgba(210,10,10,.4);
+}
+.rk-photo{width:44px;height:56px;object-fit:cover;object-position:top center;border-radius:6px;background:#0e0e0e;border:1px solid rgba(255,255,255,.06);flex-shrink:0;}
+.rk-photo-empty{width:44px;height:56px;border-radius:6px;background:#0e0e0e;border:1px dashed #1a1a1a;flex-shrink:0;}
+.rk-info{flex:1;min-width:0;}
+.rk-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rk-rec{font-size:11px;color:var(--text3);}
+.rk-trend{font-size:12px;font-weight:700;flex-shrink:0;}
+.rk-trend.up{color:#22c55e;}
+.rk-trend.dn{color:var(--red);}
+@media(max-width:680px){
+  .rk-hero{padding:28px 14px 0;}
+  .rk-tabs{gap:4px;}
+  .rk-tab{font-size:11px;padding:6px 14px;}
+  .rk-body{padding:20px 12px 60px;}
+  .rk-group{grid-template-columns:1fr;}
+  .rk-num{font-size:15px;}
+  .rk-photo{width:38px;height:48px;}
+  .rk-name{font-size:14px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo-wrap" href="index.html" data-nav="index.html">
+    <img class="nav-logo-img" src="https://a.espncdn.com/i/teamlogos/leagues/500/ufc.png" alt="UFC">
+  </a>
+  <div class="nav-divider"></div>
+  <span class="nav-title">Sıralamalar</span>
+  <div class="nav-right">
+    <a class="nav-link" href="compare.html" data-nav="compare.html">⚔ Karşılaştır</a>
+    <button class="theme-toggle" id="theme-toggle" title="Tema">☀️</button>
+  </div>
+</nav>
+
+<div class="rk-hero">
+  <div class="rk-title">UFC Sıralamaları</div>
+  <div class="rk-sub">ESPN tarafından güncellenen resmi UFC sıralamaları</div>
+  <div class="rk-tabs">
+    <button class="rk-tab active" data-grp="grp-p4p">Pound for Pound</button>
+    <button class="rk-tab" data-grp="grp-men">Erkekler</button>
+    <button class="rk-tab" data-grp="grp-women">Kadınlar</button>
+  </div>
+</div>
+
+<div class="rk-body">
+  <div class="rk-group" id="grp-p4p">
+    <div class="rk-div">
+      <div class="rk-div-title">Erkekler Pound for Pound</div>
+      <div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3088812.png" alt="Kamaru Usman" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Kamaru Usman</div>
+        <div class="rk-rec">21-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4285679.png" alt="Israel Adesanya" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Israel Adesanya</div>
+        <div class="rk-rec">24-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3933168.png" alt="Francis Ngannou" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Francis Ngannou</div>
+        <div class="rk-rec">18-3-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3949584.png" alt="Alexander Volkanovski" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Alexander Volkanovski</div>
+        <div class="rk-rec">28-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2506250.png" alt="Jan Blachowicz" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jan Blachowicz</div>
+        <div class="rk-rec">29-11-2</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2506549.png" alt="Dustin Poirier" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Dustin Poirier</div>
+        <div class="rk-rec">30-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4189320.png" alt="Deiveson Figueiredo" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Deiveson Figueiredo</div>
+        <div class="rk-rec">25-6-1</div>
+      </div>
+      <span class="rk-trend up">▲</span>
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2504951.png" alt="Stipe Miocic" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Stipe Miocic</div>
+        <div class="rk-rec">20-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2504169.png" alt="Charles Oliveira" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Charles Oliveira</div>
+        <div class="rk-rec">37-11-0</div>
+      </div>
+      
+    </div>
+    </div>
+    <div class="rk-div">
+      <div class="rk-div-title">Kadınlar Pound for Pound</div>
+      <div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2516131.png" alt="Amanda Nunes" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Amanda Nunes</div>
+        <div class="rk-rec">23-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2554705.png" alt="Valentina Shevchenko" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Valentina Shevchenko</div>
+        <div class="rk-rec">26-4-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2354564.png" alt="Cris Cyborg" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Cris Cyborg</div>
+        <div class="rk-rec">29-2-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3032973.png" alt="Rose Namajunas" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Rose Namajunas</div>
+        <div class="rk-rec">15-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4350762.png" alt="Zhang Weili" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Zhang Weili</div>
+        <div class="rk-rec">26-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3024395.png" alt="Jessica Andrade" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jessica Andrade</div>
+        <div class="rk-rec">26-15-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2552777.png" alt="Germaine de Randamie" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Germaine de Randamie</div>
+        <div class="rk-rec">10-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3028404.png" alt="Holly Holm" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Holly Holm</div>
+        <div class="rk-rec">15-7-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4026490.png" alt="Katlyn Cerminara" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Katlyn Cerminara</div>
+        <div class="rk-rec">18-6-0</div>
+      </div>
+      
+    </div>
+    </div>
+  </div>
+  <div class="rk-group" id="grp-men" style="display:none">
+      
+      <div class="rk-div">
+        <div class="rk-div-title">Heavyweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3933168.png" alt="Francis Ngannou" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Francis Ngannou</div>
+        <div class="rk-rec">18-3-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3933168.png" alt="Francis Ngannou" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Francis Ngannou</div>
+        <div class="rk-rec">18-3-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2504951.png" alt="Stipe Miocic" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Stipe Miocic</div>
+        <div class="rk-rec">20-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2560713.png" alt="Derrick Lewis" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Derrick Lewis</div>
+        <div class="rk-rec">29-13-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4426000.png" alt="Ciryl Gane" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Ciryl Gane</div>
+        <div class="rk-rec">13-2-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3922557.png" alt="Curtis Blaydes" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Curtis Blaydes</div>
+        <div class="rk-rec">19-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2993650.png" alt="Alexander Volkov" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Alexander Volkov</div>
+        <div class="rk-rec">39-11-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4410084.png" alt="Jairzinho Rozenstruik" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jairzinho Rozenstruik</div>
+        <div class="rk-rec">15-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2335516.png" alt="Alistair Overeem" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Alistair Overeem</div>
+        <div class="rk-rec">47-19-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2335530.png" alt="Ryan Bader" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Ryan Bader</div>
+        <div class="rk-rec">31-8-0</div>
+      </div>
+      
+    </div>
+      </div>
+      <div class="rk-div">
+        <div class="rk-div-title">Light Heavyweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2506250.png" alt="Jan Blachowicz" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jan Blachowicz</div>
+        <div class="rk-rec">29-11-2</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2506250.png" alt="Jan Blachowicz" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jan Blachowicz</div>
+        <div class="rk-rec">29-11-2</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2504929.png" alt="Glover Teixeira" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Glover Teixeira</div>
+        <div class="rk-rec">33-9-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3156612.png" alt="Jiří Procházka" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jiří Procházka</div>
+        <div class="rk-rec">32-5-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4079314.png" alt="Aleksandar Rakic" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Aleksandar Rakic</div>
+        <div class="rk-rec">14-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3955014.png" alt="Vadim Nemkov" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Vadim Nemkov</div>
+        <div class="rk-rec">20-2-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4233039.png" alt="Dominick Reyes" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Dominick Reyes</div>
+        <div class="rk-rec">15-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3112020.png" alt="Corey Anderson" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Corey Anderson</div>
+        <div class="rk-rec">21-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2335530.png" alt="Ryan Bader" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Ryan Bader</div>
+        <div class="rk-rec">31-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3045798.png" alt="Thiago Santos" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Thiago Santos</div>
+        <div class="rk-rec">22-13-0</div>
+      </div>
+      
+    </div>
+      </div>
+      <div class="rk-div">
+        <div class="rk-div-title">Middleweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4285679.png" alt="Israel Adesanya" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Israel Adesanya</div>
+        <div class="rk-rec">24-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4285679.png" alt="Israel Adesanya" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Israel Adesanya</div>
+        <div class="rk-rec">24-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3009717.png" alt="Robert Whittaker" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Robert Whittaker</div>
+        <div class="rk-rec">27-9-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4080826.png" alt="Paulo Costa" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Paulo Costa</div>
+        <div class="rk-rec">15-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3154860.png" alt="Jared Cannonier" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jared Cannonier</div>
+        <div class="rk-rec">18-9-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4001851.png" alt="Marvin Vettori" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Marvin Vettori</div>
+        <div class="rk-rec">19-10-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2560056.png" alt="Derek Brunson" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Derek Brunson</div>
+        <div class="rk-rec">24-9-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3897436.png" alt="Darren Till" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Darren Till</div>
+        <div class="rk-rec">18-5-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3074102.png" alt="Jack Hermansson" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jack Hermansson</div>
+        <div class="rk-rec">24-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2431313.png" alt="Gegard Mousasi" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Gegard Mousasi</div>
+        <div class="rk-rec">49-9-2</div>
+      </div>
+      
+    </div>
+      </div>
+      <div class="rk-div">
+        <div class="rk-div-title">Welterweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3088812.png" alt="Kamaru Usman" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Kamaru Usman</div>
+        <div class="rk-rec">21-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3088812.png" alt="Kamaru Usman" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Kamaru Usman</div>
+        <div class="rk-rec">21-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3088810.png" alt="Colby Covington" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Colby Covington</div>
+        <div class="rk-rec">17-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2500691.png" alt="Douglas Lima" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Douglas Lima</div>
+        <div class="rk-rec">33-12-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3152929.png" alt="Leon Edwards" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Leon Edwards</div>
+        <div class="rk-rec">22-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3090197.png" alt="Gilbert Burns" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Gilbert Burns</div>
+        <div class="rk-rec">22-9-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2615077.png" alt="Stephen Thompson" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Stephen Thompson</div>
+        <div class="rk-rec">17-9-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2960681.png" alt="Michael Chiesa" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Michael Chiesa</div>
+        <div class="rk-rec">20-7-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3045887.png" alt="Vicente Luque" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Vicente Luque</div>
+        <div class="rk-rec">23-12-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2500857.png" alt="Jorge Masvidal" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jorge Masvidal</div>
+        <div class="rk-rec">35-17-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2501814.png" alt="Rory MacDonald" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Rory MacDonald</div>
+        <div class="rk-rec">23-10-1</div>
+      </div>
+      
+    </div>
+      </div>
+      <div class="rk-div">
+        <div class="rk-div-title">Lightweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2504169.png" alt="Charles Oliveira" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Charles Oliveira</div>
+        <div class="rk-rec">37-11-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2504169.png" alt="Charles Oliveira" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Charles Oliveira</div>
+        <div class="rk-rec">37-11-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2506549.png" alt="Dustin Poirier" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Dustin Poirier</div>
+        <div class="rk-rec">30-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3022345.png" alt="Justin Gaethje" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Justin Gaethje</div>
+        <div class="rk-rec">27-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2504988.png" alt="Michael Chandler" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Michael Chandler</div>
+        <div class="rk-rec">23-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3085551.png" alt="Beneil Dariush" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Beneil Dariush</div>
+        <div class="rk-rec">23-7-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3109135.png" alt="Dan Hooker" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Dan Hooker</div>
+        <div class="rk-rec">24-14-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2335687.png" alt="Rafael Dos Anjos" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Rafael Dos Anjos</div>
+        <div class="rk-rec">32-17-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3332412.png" alt="Islam Makhachev" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Islam Makhachev</div>
+        <div class="rk-rec">28-1-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3099985.png" alt="Paul Felder" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Paul Felder</div>
+        <div class="rk-rec">17-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4021934.png" alt="Gregor Gillespie" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Gregor Gillespie</div>
+        <div class="rk-rec">14-1-0</div>
+      </div>
+      
+    </div>
+      </div>
+      <div class="rk-div">
+        <div class="rk-div-title">Featherweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3949584.png" alt="Alexander Volkanovski" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Alexander Volkanovski</div>
+        <div class="rk-rec">28-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3949584.png" alt="Alexander Volkanovski" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Alexander Volkanovski</div>
+        <div class="rk-rec">28-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2614933.png" alt="Max Holloway" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Max Holloway</div>
+        <div class="rk-rec">27-9-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2532870.png" alt="Patricio Pitbull" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Patricio Pitbull</div>
+        <div class="rk-rec">37-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3045737.png" alt="Brian Ortega" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Brian Ortega</div>
+        <div class="rk-rec">16-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3164030.png" alt="Calvin Kattar" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Calvin Kattar</div>
+        <div class="rk-rec">23-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3155420.png" alt="Yair Rodriguez" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Yair Rodriguez</div>
+        <div class="rk-rec">21-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2501685.png" alt="Chan Sung Jung" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Chan Sung Jung</div>
+        <div class="rk-rec">17-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4011299.png" alt="Josh Emmett" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Josh Emmett</div>
+        <div class="rk-rec">19-7-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2526299.png" alt="Edson Barboza" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Edson Barboza</div>
+        <div class="rk-rec">24-14-0</div>
+      </div>
+      
+    </div>
+      </div>
+      <div class="rk-div">
+        <div class="rk-div-title">Bantamweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3031559.png" alt="Aljamain Sterling" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Aljamain Sterling</div>
+        <div class="rk-rec">25-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3031559.png" alt="Aljamain Sterling" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Aljamain Sterling</div>
+        <div class="rk-rec">25-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4293517.png" alt="Petr Yan" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Petr Yan</div>
+        <div class="rk-rec">20-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4294504.png" alt="Cory Sandhagen" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Cory Sandhagen</div>
+        <div class="rk-rec">18-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3163637.png" alt="Cody Garbrandt" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Cody Garbrandt</div>
+        <div class="rk-rec">15-7-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3090451.png" alt="Rob Font" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Rob Font</div>
+        <div class="rk-rec">22-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2447641.png" alt="José Aldo" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">José Aldo</div>
+        <div class="rk-rec">32-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2335694.png" alt="Frankie Edgar" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Frankie Edgar</div>
+        <div class="rk-rec">23-11-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3045734.png" alt="Pedro Munhoz" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Pedro Munhoz</div>
+        <div class="rk-rec">20-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2553310.png" alt="Marlon Moraes" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Marlon Moraes</div>
+        <div class="rk-rec">23-13-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2354364.png" alt="Raphael Assuncao" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Raphael Assuncao</div>
+        <div class="rk-rec">28-10-0</div>
+      </div>
+      
+    </div>
+      </div>
+      <div class="rk-div">
+        <div class="rk-div-title">Flyweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4189320.png" alt="Deiveson Figueiredo" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Deiveson Figueiredo</div>
+        <div class="rk-rec">25-6-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4189320.png" alt="Deiveson Figueiredo" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Deiveson Figueiredo</div>
+        <div class="rk-rec">25-6-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3027545.png" alt="Brandon Moreno" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Brandon Moreno</div>
+        <div class="rk-rec">23-10-2</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3081236.png" alt="Adriano Moraes" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Adriano Moraes</div>
+        <div class="rk-rec">21-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2512089.png" alt="Demetrious Johnson" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Demetrious Johnson</div>
+        <div class="rk-rec">25-4-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4064692.png" alt="Askar Askarov" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Askar Askarov</div>
+        <div class="rk-rec">15-1-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3155425.png" alt="Alex Perez" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Alex Perez</div>
+        <div class="rk-rec">26-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2560746.png" alt="Alexandre Pantoja" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Alexandre Pantoja</div>
+        <div class="rk-rec">30-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4243885.png" alt="Kai Kara-France" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Kai Kara-France</div>
+        <div class="rk-rec">25-12-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4239928.png" alt="Brandon Royval" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Brandon Royval</div>
+        <div class="rk-rec">17-9-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4280789.png" alt="Rogerio Bontorin" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Rogerio Bontorin</div>
+        <div class="rk-rec">17-5-0</div>
+      </div>
+      
+    </div>
+      </div>
+    </div>
+  <div class="rk-group" id="grp-women" style="display:none">
+      
+      <div class="rk-div">
+        <div class="rk-div-title">Women's Bantamweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2516131.png" alt="Amanda Nunes" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Amanda Nunes</div>
+        <div class="rk-rec">23-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2516131.png" alt="Amanda Nunes" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Amanda Nunes</div>
+        <div class="rk-rec">23-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2552777.png" alt="Germaine de Randamie" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Germaine de Randamie</div>
+        <div class="rk-rec">10-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2951361.png" alt="Julianna Peña" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Julianna Peña</div>
+        <div class="rk-rec">13-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3028404.png" alt="Holly Holm" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Holly Holm</div>
+        <div class="rk-rec">15-7-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3136286.png" alt="Irene Aldana" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Irene Aldana</div>
+        <div class="rk-rec">15-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3154898.png" alt="Yana Santos" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Yana Santos</div>
+        <div class="rk-rec">17-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4039865.png" alt="Ketlen Vieira" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Ketlen Vieira</div>
+        <div class="rk-rec">15-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2995167.png" alt="Raquel Pennington" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Raquel Pennington</div>
+        <div class="rk-rec">16-10-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4334306.png" alt="Macy Chiasson" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Macy Chiasson</div>
+        <div class="rk-rec">11-6-0</div>
+      </div>
+      
+    </div>
+      </div>
+      <div class="rk-div">
+        <div class="rk-div-title">Women's Strawweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3032973.png" alt="Rose Namajunas" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Rose Namajunas</div>
+        <div class="rk-rec">15-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3032973.png" alt="Rose Namajunas" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Rose Namajunas</div>
+        <div class="rk-rec">15-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4350762.png" alt="Zhang Weili" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Zhang Weili</div>
+        <div class="rk-rec">26-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2559934.png" alt="Carla Esparza" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Carla Esparza</div>
+        <div class="rk-rec">20-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4275487.png" alt="Yan Xiaonan" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Yan Xiaonan</div>
+        <div class="rk-rec">19-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4379258.png" alt="Marina Rodriguez" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Marina Rodriguez</div>
+        <div class="rk-rec">17-6-2</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4021217.png" alt="Mackenzie Dern" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Mackenzie Dern</div>
+        <div class="rk-rec">16-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3011878.png" alt="Claudia Gadelha" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Claudia Gadelha</div>
+        <div class="rk-rec">18-5-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2951504.png" alt="Michelle Waterson-Gomez" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Michelle Waterson-Gomez</div>
+        <div class="rk-rec">18-13-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3032972.png" alt="Tecia Pennington" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Tecia Pennington</div>
+        <div class="rk-rec">15-8-0</div>
+      </div>
+      
+    </div>
+      </div>
+      <div class="rk-div">
+        <div class="rk-div-title">Women's Flyweight</div>
+        <div class="rk-row">
+      <div class="rk-num champ">C</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2554705.png" alt="Valentina Shevchenko" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Valentina Shevchenko</div>
+        <div class="rk-rec">26-4-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">1</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2554705.png" alt="Valentina Shevchenko" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Valentina Shevchenko</div>
+        <div class="rk-rec">26-4-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">2</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3024395.png" alt="Jessica Andrade" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jessica Andrade</div>
+        <div class="rk-rec">26-15-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">3</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4026490.png" alt="Katlyn Cerminara" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Katlyn Cerminara</div>
+        <div class="rk-rec">18-6-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">4</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3022348.png" alt="Jennifer Maia" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Jennifer Maia</div>
+        <div class="rk-rec">23-10-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">5</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3028064.png" alt="Joanne Wood" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Joanne Wood</div>
+        <div class="rk-rec">17-8-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">6</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3075001.png" alt="Lauren Murphy" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Lauren Murphy</div>
+        <div class="rk-rec">16-7-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">7</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4257422.png" alt="Juliana Velasquez" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Juliana Velasquez</div>
+        <div class="rk-rec">14-4-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">8</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/3924103.png" alt="Ilima-Lei Macfarlane" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Ilima-Lei Macfarlane</div>
+        <div class="rk-rec">13-3-0</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">9</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4085155.png" alt="Cynthia Calvillo" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Cynthia Calvillo</div>
+        <div class="rk-rec">9-6-1</div>
+      </div>
+      
+    </div><div class="rk-row">
+      <div class="rk-num ">10</div>
+      <img class="rk-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/2554674.png" alt="Liz Carmouche" onerror="this.style.display='none'">
+      <div class="rk-info">
+        <div class="rk-name">Liz Carmouche</div>
+        <div class="rk-rec">25-8-0</div>
+      </div>
+      
+    </div>
+      </div>
+    </div>
+</div>
+
+<footer>ESPN · UFC Maç Merkezi · 30.03.2026</footer>
+<script>
+  function navigate(url){
+    document.body.classList.add('leaving');
+    setTimeout(()=>window.location.href=url,260);
+  }
+  document.querySelectorAll('[data-nav]').forEach(el=>{
+    el.addEventListener('click',e=>{e.preventDefault();navigate(el.dataset.nav);});
+  });
+  (function(){
+    const saved=localStorage.getItem('ufc-theme')||'dark';
+    document.documentElement.dataset.theme=saved==='light'?'light':'';
+    const btn=document.getElementById('theme-toggle');
+    if(!btn)return;
+    btn.textContent=saved==='light'?'🌙':'☀️';
+    btn.addEventListener('click',()=>{
+      const isLight=document.documentElement.dataset.theme==='light';
+      document.documentElement.dataset.theme=isLight?'':'light';
+      localStorage.setItem('ufc-theme',isLight?'dark':'light');
+      btn.textContent=isLight?'☀️':'🌙';
+    });
+  })();
+  function updateCountdowns(){
+    document.querySelectorAll('[data-countdown]').forEach(el=>{
+      const t=new Date(el.dataset.countdown)-Date.now();
+      if(t<=0){el.textContent='BAŞLADI';el.style.color='var(--red)';return;}
+      const d=Math.floor(t/86400000),h=Math.floor((t%86400000)/3600000),
+            m=Math.floor((t%3600000)/60000),s=Math.floor((t%60000)/1000);
+      el.textContent=d>0?d+'G '+h+'S '+m+'D':h+'S '+m+'D '+s+'sn';
+    });
+  }
+  if(document.querySelector('[data-countdown]')){updateCountdowns();setInterval(updateCountdowns,1000);}
+</script>
+<script>
+document.querySelectorAll('.rk-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.rk-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.rk-group').forEach(g=>g.style.display='none');
+    document.getElementById(btn.dataset.grp).style.display='grid';
+  });
+});
+</script>
+</body>
+</html>

@@ -428,6 +428,7 @@ ${BASE_STYLE}
   <div class="nav-divider"></div>
   <span class="nav-title">Maç Merkezi</span>
   <div class="nav-right">
+    <a class="nav-link" href="rankings.html" data-nav="rankings.html">🏆 Sıralama</a>
     <a class="nav-link" href="compare.html" data-nav="compare.html">⚔ Karşılaştır</a>
     <button class="theme-toggle" id="theme-toggle" title="Tema">☀️</button>
     <span class="nav-date">Son güncelleme: ${new Date().toLocaleString('tr-TR')}</span>
@@ -862,6 +863,7 @@ ${BASE_STYLE}
   </a>
   <span class="nav-event-name">${esc(eventName)}</span>
   <div class="nav-right">
+    <a class="nav-link" href="rankings.html" data-nav="rankings.html">🏆 Sıralama</a>
     <a class="nav-link" href="compare.html" data-nav="compare.html">⚔ Karşılaştır</a>
     <button class="theme-toggle" id="theme-toggle" title="Tema">☀️</button>
   </div>
@@ -875,7 +877,7 @@ ${BASE_STYLE}
         ${fight.fighter1Photo?`<img class="hf-img" src="${fight.fighter1Photo}" alt="${esc(fight.fighter1)}" onerror="this.style.visibility='hidden'">`:`<div class="hf-img"></div>`}
       </div>
       <div class="hf-info">
-        <div class="hf-name">${esc(fight.fighter1||'?')}</div>
+        <a class="hf-name" href="fighter-${slugify(fight.fighter1||'')}.html" data-nav="fighter-${slugify(fight.fighter1||'')}.html" style="text-decoration:none;color:inherit;display:block;">${esc(fight.fighter1||'?')}</a>
         <div class="hf-meta">
           ${fight.fighter1Flag?`<img class="hf-flag" src="${fight.fighter1Flag}" alt="">`:''}
           <span>${esc(fight.fighter1Country||'')}</span>
@@ -894,7 +896,7 @@ ${BASE_STYLE}
         ${fight.fighter2Photo?`<img class="hf-img" src="${fight.fighter2Photo}" alt="${esc(fight.fighter2)}" onerror="this.style.visibility='hidden'">`:`<div class="hf-img"></div>`}
       </div>
       <div class="hf-info">
-        <div class="hf-name">${esc(fight.fighter2||'?')}</div>
+        <a class="hf-name" href="fighter-${slugify(fight.fighter2||'')}.html" data-nav="fighter-${slugify(fight.fighter2||'')}.html" style="text-decoration:none;color:inherit;display:block;">${esc(fight.fighter2||'?')}</a>
         <div class="hf-meta">
           ${fight.fighter2Flag?`<img class="hf-flag" src="${fight.fighter2Flag}" alt="">`:''}
           <span>${esc(fight.fighter2Country||'')}</span>
@@ -1303,6 +1305,320 @@ function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function slugify(name){
+  return name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+
+// ── FIGHTER PAGE ──────────────────────────────────────────────────────────────
+function generateFighterPage(fighter) {
+  const wins   = fighter.fights.filter(f=>f.result==='W').length;
+  const losses = fighter.fights.filter(f=>f.result==='L').length;
+  const upcoming = fighter.fights.filter(f=>f.result==='upcoming');
+  const past     = fighter.fights.filter(f=>f.result!=='upcoming').reverse();
+
+  const fightRowsHtml = [...upcoming, ...past].map(f=>{
+    const rc = f.result==='W'?'W':f.result==='L'?'L':f.result==='upcoming'?'upcoming':'';
+    const label = rc==='W'?'GALİBİYET':rc==='L'?'MAĞLUBIYET':rc==='upcoming'?'YAKLAŞAN':'';
+    const det = [f.method, f.round?'R'+f.round:'', f.event].filter(Boolean).join(' · ');
+    const dateStr = f.date ? new Date(f.date).toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'}) : '';
+    return `<a class="fp-fight" href="${f.url}" data-nav="${f.url}">
+      <span class="fp-result ${rc}">${label}</span>
+      <div class="fp-opp">vs <strong>${esc(f.opponent)}</strong></div>
+      <div class="fp-det">${esc(det)}${dateStr?' · '+dateStr:''}</div>
+    </a>`;
+  }).join('');
+
+  const winRate = wins+losses>0 ? Math.round(wins/(wins+losses)*100) : 0;
+
+  return `<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${esc(fighter.name)} · UFC Profil</title>
+<style>
+${BASE_STYLE}
+.fp-hero{
+  background:linear-gradient(180deg,#0c0000 0%,var(--bg) 100%);
+  display:flex;align-items:flex-end;gap:0;overflow:hidden;position:relative;min-height:320px;
+}
+.fp-hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 20% 50%,rgba(210,10,10,.12),transparent);z-index:0;}
+.fp-photo-wrap{position:relative;z-index:1;flex-shrink:0;width:260px;display:flex;justify-content:center;align-items:flex-end;}
+.fp-photo{
+  width:220px;height:280px;object-fit:cover;object-position:top center;
+  display:block;
+  mask-image:linear-gradient(to bottom,black 55%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,black 55%,transparent 100%);
+}
+.fp-info{position:relative;z-index:1;padding:40px 40px 36px 28px;flex:1;min-width:0;}
+.fp-weight{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.fp-name{font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,64px);font-weight:900;text-transform:uppercase;letter-spacing:1px;line-height:1;margin-bottom:10px;}
+.fp-meta{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.fp-flag{width:28px;height:18px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,.15);}
+.fp-country{font-size:13px;color:var(--text3);}
+.fp-record{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;color:var(--text2);letter-spacing:2px;}
+
+.fp-stats{
+  display:flex;gap:0;background:var(--bg2);border-top:2px solid var(--red);border-bottom:1px solid var(--border);
+}
+.fp-stat{display:flex;flex-direction:column;align-items:center;padding:18px 28px;flex:1;border-right:1px solid var(--border);}
+.fp-stat:last-child{border-right:none;}
+.fp-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;line-height:1;color:var(--text);}
+.fp-stat-val.green{color:#22c55e;}
+.fp-stat-val.red{color:var(--red);}
+.fp-stat-lbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:4px;}
+
+.fp-body{max-width:800px;margin:0 auto;padding:40px 40px 100px;}
+.fp-section-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text3);padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid rgba(255,255,255,.06);}
+.fp-fight{
+  display:grid;grid-template-columns:110px 1fr;align-items:center;gap:12px;
+  padding:14px 18px;border-radius:10px;background:var(--card);border:1px solid var(--border);
+  margin-bottom:8px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s;
+}
+.fp-fight:hover{border-color:rgba(210,10,10,.4);transform:translateX(3px);}
+.fp-result{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:4px;text-align:center;}
+.fp-result.W{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.25);}
+.fp-result.L{background:rgba(210,10,10,.1);color:var(--red);border:1px solid rgba(210,10,10,.2);}
+.fp-result.upcoming{background:rgba(245,197,24,.08);color:var(--gold);border:1px solid rgba(245,197,24,.2);}
+.fp-opp{font-size:15px;color:var(--text);margin-bottom:3px;}
+.fp-opp strong{font-weight:700;}
+.fp-det{font-size:11px;color:var(--text3);}
+@media(max-width:680px){
+  .fp-hero{flex-direction:column;min-height:unset;align-items:center;}
+  .fp-photo-wrap{width:100%;justify-content:center;padding-top:24px;}
+  .fp-photo{width:160px;height:204px;}
+  .fp-info{padding:16px 20px 20px;text-align:center;width:100%;}
+  .fp-meta{justify-content:center;}
+  .fp-stat{padding:14px 12px;}
+  .fp-stat-val{font-size:28px;}
+  .fp-body{padding:24px 14px 60px;}
+  .fp-fight{grid-template-columns:90px 1fr;gap:8px;padding:12px 14px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-back" href="index.html" data-nav="index.html">← Tüm Maçlar</a>
+  <div class="nav-divider"></div>
+  <a class="nav-logo-wrap" href="index.html" data-nav="index.html">
+    <img class="nav-logo-img" src="${UFC_LOGO}" alt="UFC">
+  </a>
+  <div class="nav-right">
+    <a class="nav-link" href="rankings.html" data-nav="rankings.html">🏆 Sıralama</a>
+    <a class="nav-link" href="compare.html" data-nav="compare.html">⚔ Karşılaştır</a>
+    <button class="theme-toggle" id="theme-toggle" title="Tema">☀️</button>
+  </div>
+</nav>
+
+<div class="fp-hero">
+  <div class="fp-hero-bg"></div>
+  <div class="fp-photo-wrap">
+    ${fighter.photo?`<img class="fp-photo" src="${fighter.photo}" alt="${esc(fighter.name)}" onerror="this.style.visibility='hidden'">`:'<div class="fp-photo"></div>'}
+  </div>
+  <div class="fp-info">
+    ${fighter.weightClass?`<div class="fp-weight">${esc(fighter.weightClass)}</div>`:''}
+    <div class="fp-name">${esc(fighter.name)}</div>
+    <div class="fp-meta">
+      ${fighter.flag?`<img class="fp-flag" src="${fighter.flag}" alt="${esc(fighter.country||'')}">` :''}
+      ${fighter.country?`<span class="fp-country">${esc(fighter.country)}</span>`:''}
+    </div>
+    <div class="fp-record">${esc(fighter.record||'')}</div>
+  </div>
+</div>
+
+<div class="fp-stats">
+  <div class="fp-stat"><div class="fp-stat-val green">${wins}</div><div class="fp-stat-lbl">Galibiyet</div></div>
+  <div class="fp-stat"><div class="fp-stat-val red">${losses}</div><div class="fp-stat-lbl">Mağlubiyet</div></div>
+  <div class="fp-stat"><div class="fp-stat-val">${winRate}%</div><div class="fp-stat-lbl">Galibiyet Oranı</div></div>
+  <div class="fp-stat"><div class="fp-stat-val">${upcoming.length}</div><div class="fp-stat-lbl">Yaklaşan Maç</div></div>
+</div>
+
+<div class="fp-body">
+  <div class="fp-section-title">Maç Geçmişi</div>
+  ${fightRowsHtml || '<p style="color:var(--text3);font-style:italic;font-size:14px">Maç bulunamadı.</p>'}
+</div>
+
+<footer>UFC Maç Merkezi</footer>
+<script>${TRANSITION_JS}</script>
+</body>
+</html>`;
+}
+
+// ── RANKINGS PAGE ─────────────────────────────────────────────────────────────
+function generateRankingsPage(data) {
+  const rankings = data.rankings || [];
+  // Merge champion + ranked lists into one view per division
+  // Champions have "Champions" in name, Rankings have "Rankings" in name
+  const champDivs = rankings.filter(r=>r.name.includes('Champions'));
+  const rankDivs  = rankings.filter(r=>r.name.includes('Rankings'));
+  const p4pMen    = rankings.find(r=>r.name.includes("Men's Pound"));
+  const p4pWomen  = rankings.find(r=>r.name.includes("Women's Pound"));
+
+  // Build merged divisions
+  const divisionOrder = [
+    'Heavyweight','Light Heavyweight','Middleweight','Welterweight','Lightweight',
+    'Featherweight','Bantamweight','Flyweight',
+    "Women's Bantamweight","Women's Strawweight","Women's Flyweight"
+  ];
+
+  const divisions = divisionOrder.map(div => {
+    const champ = champDivs.find(r=>r.name.includes(div));
+    const ranked = rankDivs.find(r=>r.name.includes(div));
+    if (!champ && !ranked) return null;
+    const champRanks = (champ?.ranks||[]).map(r=>({...r, isChamp:true}));
+    return {
+      name: div,
+      entries: [...champRanks, ...(ranked?.ranks||[])]
+    };
+  }).filter(Boolean);
+
+  function rankRow(r, idx) {
+    const trend = r.trend==='+1'||r.trend==='up'||Number(r.trend)>0 ? '▲' :
+                  r.trend==='-1'||r.trend==='down'||Number(r.trend)<0 ? '▼' : '';
+    const trendCls = trend==='▲'?'up':trend==='▼'?'dn':'';
+    const rank = r.isChamp ? 'C' : String(r.current||idx+1);
+    return `<div class="rk-row">
+      <div class="rk-num ${r.isChamp?'champ':''}">${rank}</div>
+      ${r.photo?`<img class="rk-photo" src="${r.photo}" alt="${esc(r.name)}" onerror="this.style.display='none'">`:'<div class="rk-photo-empty"></div>'}
+      <div class="rk-info">
+        <div class="rk-name">${esc(r.name)}</div>
+        ${r.record?`<div class="rk-rec">${esc(r.record)}</div>`:''}
+      </div>
+      ${trend?`<span class="rk-trend ${trendCls}">${trend}</span>`:''}
+    </div>`;
+  }
+
+  function p4pSection(div, title) {
+    if (!div?.ranks?.length) return '';
+    return `<div class="rk-div">
+      <div class="rk-div-title">${esc(title)}</div>
+      ${div.ranks.map((r,i)=>rankRow(r,i)).join('')}
+    </div>`;
+  }
+
+  const p4pHtml = `<div class="rk-group" id="grp-p4p">
+    ${p4pSection(p4pMen,'Erkekler Pound for Pound')}
+    ${p4pSection(p4pWomen,'Kadınlar Pound for Pound')}
+  </div>`;
+
+  const menDivisions = divisions.filter(d=>!d.name.startsWith("Women's"));
+  const womenDivisions = divisions.filter(d=>d.name.startsWith("Women's"));
+
+  function divGroup(divs, id) {
+    return `<div class="rk-group" id="${id}" style="display:none">
+      ${divs.map(div=>`
+      <div class="rk-div">
+        <div class="rk-div-title">${esc(div.name)}</div>
+        ${div.entries.map((r,i)=>rankRow(r,i)).join('')}
+      </div>`).join('')}
+    </div>`;
+  }
+
+  return `<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UFC Sıralamaları</title>
+<style>
+${BASE_STYLE}
+.rk-hero{background:linear-gradient(180deg,#0c0000,var(--bg));padding:48px 40px 0;text-align:center;border-bottom:1px solid var(--border);}
+.rk-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,5vw,56px);font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.rk-sub{font-size:13px;color:var(--text3);margin-bottom:32px;}
+.rk-tabs{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;padding-bottom:0;}
+.rk-tab{
+  background:none;border:1px solid var(--border2);border-radius:8px;
+  color:var(--text2);cursor:pointer;padding:8px 22px;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  transition:all .18s;
+}
+.rk-tab.active{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 0 20px rgba(210,10,10,.3);}
+.rk-tab:not(.active):hover{border-color:var(--text2);color:var(--text);}
+
+.rk-body{max-width:960px;margin:0 auto;padding:40px 40px 100px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+.rk-group{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.rk-div{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.rk-div-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--text2);padding:14px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+}
+.rk-row{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;
+}
+.rk-row:last-child{border-bottom:none;}
+.rk-row:hover{background:rgba(255,255,255,.03);}
+.rk-num{
+  font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;
+  color:#333;min-width:28px;text-align:center;flex-shrink:0;
+}
+.rk-num.champ{
+  font-size:13px;color:#fff;background:var(--red);padding:3px 6px;border-radius:4px;
+  letter-spacing:1px;box-shadow:0 0 12px rgba(210,10,10,.4);
+}
+.rk-photo{width:44px;height:56px;object-fit:cover;object-position:top center;border-radius:6px;background:#0e0e0e;border:1px solid rgba(255,255,255,.06);flex-shrink:0;}
+.rk-photo-empty{width:44px;height:56px;border-radius:6px;background:#0e0e0e;border:1px dashed #1a1a1a;flex-shrink:0;}
+.rk-info{flex:1;min-width:0;}
+.rk-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rk-rec{font-size:11px;color:var(--text3);}
+.rk-trend{font-size:12px;font-weight:700;flex-shrink:0;}
+.rk-trend.up{color:#22c55e;}
+.rk-trend.dn{color:var(--red);}
+@media(max-width:680px){
+  .rk-hero{padding:28px 14px 0;}
+  .rk-tabs{gap:4px;}
+  .rk-tab{font-size:11px;padding:6px 14px;}
+  .rk-body{padding:20px 12px 60px;}
+  .rk-group{grid-template-columns:1fr;}
+  .rk-num{font-size:15px;}
+  .rk-photo{width:38px;height:48px;}
+  .rk-name{font-size:14px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo-wrap" href="index.html" data-nav="index.html">
+    <img class="nav-logo-img" src="${UFC_LOGO}" alt="UFC">
+  </a>
+  <div class="nav-divider"></div>
+  <span class="nav-title">Sıralamalar</span>
+  <div class="nav-right">
+    <a class="nav-link" href="compare.html" data-nav="compare.html">⚔ Karşılaştır</a>
+    <button class="theme-toggle" id="theme-toggle" title="Tema">☀️</button>
+  </div>
+</nav>
+
+<div class="rk-hero">
+  <div class="rk-title">UFC Sıralamaları</div>
+  <div class="rk-sub">ESPN tarafından güncellenen resmi UFC sıralamaları</div>
+  <div class="rk-tabs">
+    <button class="rk-tab active" data-grp="grp-p4p">Pound for Pound</button>
+    <button class="rk-tab" data-grp="grp-men">Erkekler</button>
+    <button class="rk-tab" data-grp="grp-women">Kadınlar</button>
+  </div>
+</div>
+
+<div class="rk-body">
+  ${p4pHtml}
+  ${divGroup(menDivisions,'grp-men')}
+  ${divGroup(womenDivisions,'grp-women')}
+</div>
+
+<footer>ESPN · UFC Maç Merkezi · ${new Date().toLocaleDateString('tr-TR')}</footer>
+<script>${TRANSITION_JS}</script>
+<script>
+document.querySelectorAll('.rk-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.rk-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.rk-group').forEach(g=>g.style.display='none');
+    document.getElementById(btn.dataset.grp).style.display='grid';
+  });
+});
+</script>
+</body>
+</html>`;
+}
+
 // ── MAIN ──────────────────────────────────────────────────────────────────────
 const data = JSON.parse(fs.readFileSync('ufc_data.json','utf8'));
 fs.writeFileSync('index.html', generateIndex(data));
@@ -1313,4 +1629,35 @@ data.events.forEach((event,ei)=>{
   });
 });
 fs.writeFileSync('compare.html', generateComparePage(data));
-console.log('✅ Sayfalar oluşturuldu.');
+
+// Generate fighter pages
+const fighterMap2 = {};
+data.events.forEach((event,ei)=>{
+  event.fights.forEach((fight,fi)=>{
+    const url = `fight-${ei}-${fi}.html`;
+    const add = (name,photo,flag,country,record,wc,opponent,isWinner,completed)=>{
+      if(!name||name==='?'||name.startsWith('TBA')) return;
+      if(!fighterMap2[name]) fighterMap2[name]={name,photo,flag,country,record,weightClass:wc,fights:[]};
+      if(photo) fighterMap2[name].photo=photo;
+      if(flag)  fighterMap2[name].flag=flag;
+      if(country) fighterMap2[name].country=country;
+      if(record)  fighterMap2[name].record=record;
+      fighterMap2[name].fights.push({
+        opponent, url,
+        result: !completed?'upcoming':(isWinner?'W':'L'),
+        method: fight.method||'',
+        round: fight.round,
+        event: event.name,
+        date: event.date
+      });
+    };
+    add(fight.fighter1,fight.fighter1Photo,fight.fighter1Flag,fight.fighter1Country,fight.fighter1Record,fight.weightClass,fight.fighter2,fight.winner===fight.fighter1,fight.completed);
+    add(fight.fighter2,fight.fighter2Photo,fight.fighter2Flag,fight.fighter2Country,fight.fighter2Record,fight.weightClass,fight.fighter1,fight.winner===fight.fighter2,fight.completed);
+  });
+});
+Object.values(fighterMap2).forEach(fighter=>{
+  fs.writeFileSync(`fighter-${slugify(fighter.name)}.html`, generateFighterPage(fighter));
+});
+
+fs.writeFileSync('rankings.html', generateRankingsPage(data));
+console.log(`✅ Sayfalar oluşturuldu. (${Object.keys(fighterMap2).length} dövüşçü sayfası)`);

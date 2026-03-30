@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cam Rowston · UFC Profil</title>
+<style>
+
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap');
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --red:#D20A0A;--red2:#ff1a1a;--gold:#F5C518;
+    --bg:#070707;--bg2:#0d0d0d;--bg3:#111;
+    --card:rgba(255,255,255,.03);
+    --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.14);
+    --text:#f0f0f0;--text2:#999;--text3:#444;
+  }
+  html[data-theme="light"]{
+    --bg:#f0f0f0;--bg2:#e5e5e5;--bg3:#d8d8d8;
+    --card:rgba(0,0,0,.04);
+    --border:rgba(0,0,0,.09);--border2:rgba(0,0,0,.18);
+    --text:#111;--text2:#555;--text3:#999;
+  }
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Barlow','Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);
+    min-height:100vh;overflow-x:hidden;
+    animation:pgIn .38s cubic-bezier(.22,1,.36,1) both;
+    transition:background .25s,color .25s;
+  }
+  @keyframes pgIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes pgOut{from{opacity:1}to{opacity:0;transform:scale(.97) translateY(-8px)}}
+  body.leaving{animation:pgOut .22s ease both;pointer-events:none;}
+
+  nav{
+    position:sticky;top:0;z-index:500;height:80px;
+    background:rgba(7,7,7,.97);border-bottom:2px solid var(--red);
+    display:flex;align-items:center;padding:0 40px;gap:20px;
+    backdrop-filter:blur(24px) saturate(1.4);
+    box-shadow:0 4px 60px rgba(0,0,0,.8),0 1px 0 rgba(210,10,10,.3);
+    transition:background .25s;
+  }
+  html[data-theme="light"] nav{background:rgba(240,240,240,.97);box-shadow:0 2px 20px rgba(0,0,0,.12);}
+  @media(max-width:640px){
+    nav{height:60px;padding:0 14px;gap:10px;}
+    .nav-logo-img{height:38px;}
+    .nav-title,.nav-date{display:none;}
+    .nav-link{font-size:11px;padding:5px 10px;letter-spacing:.5px;}
+    .nav-back{font-size:12px;padding:6px 12px;}
+    footer{padding:24px 16px;}
+  }
+  .nav-logo-wrap{display:flex;align-items:center;text-decoration:none;}
+  .nav-logo-img{
+    height:58px;width:auto;
+    filter:drop-shadow(0 0 14px rgba(210,10,10,.7)) brightness(1.15);
+    transition:filter .3s;
+  }
+  .nav-logo-wrap:hover .nav-logo-img{filter:drop-shadow(0 0 22px rgba(210,10,10,1)) brightness(1.25);}
+  .nav-divider{width:1px;height:36px;background:rgba(255,255,255,.1);flex-shrink:0;}
+  html[data-theme="light"] .nav-divider{background:rgba(0,0,0,.12);}
+  .nav-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text2);letter-spacing:3px;text-transform:uppercase;}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+  .nav-date{font-size:11px;color:var(--text3);letter-spacing:.5px;}
+  .nav-back{
+    display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text2);
+    font-size:13px;font-weight:600;letter-spacing:.5px;
+    padding:7px 16px;border-radius:6px;border:1px solid var(--border2);transition:all .2s;
+  }
+  .nav-back:hover{color:#fff;border-color:var(--red);background:rgba(210,10,10,.12);}
+  .nav-event-name{
+    font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--text3);
+    text-transform:uppercase;letter-spacing:1.5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;
+  }
+  .nav-link{
+    display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--text2);
+    font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    padding:6px 14px;border-radius:6px;border:1px solid var(--border2);transition:all .2s;white-space:nowrap;
+  }
+  .nav-link:hover{color:#fff;border-color:var(--red);background:rgba(210,10,10,.12);}
+  .theme-toggle{
+    background:none;border:1px solid var(--border2);border-radius:8px;
+    color:var(--text2);cursor:pointer;padding:6px 11px;font-size:16px;
+    transition:all .2s;line-height:1;flex-shrink:0;
+  }
+  .theme-toggle:hover{border-color:var(--red);}
+  footer{
+    text-align:center;padding:52px 24px;
+    color:var(--text3);font-size:11px;letter-spacing:.8px;
+    border-top:1px solid rgba(255,255,255,.04);background:var(--bg2);
+  }
+
+.fp-hero{
+  background:linear-gradient(180deg,#0c0000 0%,var(--bg) 100%);
+  display:flex;align-items:flex-end;gap:0;overflow:hidden;position:relative;min-height:320px;
+}
+.fp-hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 20% 50%,rgba(210,10,10,.12),transparent);z-index:0;}
+.fp-photo-wrap{position:relative;z-index:1;flex-shrink:0;width:260px;display:flex;justify-content:center;align-items:flex-end;}
+.fp-photo{
+  width:220px;height:280px;object-fit:cover;object-position:top center;
+  display:block;
+  mask-image:linear-gradient(to bottom,black 55%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,black 55%,transparent 100%);
+}
+.fp-info{position:relative;z-index:1;padding:40px 40px 36px 28px;flex:1;min-width:0;}
+.fp-weight{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.fp-name{font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,64px);font-weight:900;text-transform:uppercase;letter-spacing:1px;line-height:1;margin-bottom:10px;}
+.fp-meta{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.fp-flag{width:28px;height:18px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,.15);}
+.fp-country{font-size:13px;color:var(--text3);}
+.fp-record{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;color:var(--text2);letter-spacing:2px;}
+
+.fp-stats{
+  display:flex;gap:0;background:var(--bg2);border-top:2px solid var(--red);border-bottom:1px solid var(--border);
+}
+.fp-stat{display:flex;flex-direction:column;align-items:center;padding:18px 28px;flex:1;border-right:1px solid var(--border);}
+.fp-stat:last-child{border-right:none;}
+.fp-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;line-height:1;color:var(--text);}
+.fp-stat-val.green{color:#22c55e;}
+.fp-stat-val.red{color:var(--red);}
+.fp-stat-lbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:4px;}
+
+.fp-body{max-width:800px;margin:0 auto;padding:40px 40px 100px;}
+.fp-section-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text3);padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid rgba(255,255,255,.06);}
+.fp-fight{
+  display:grid;grid-template-columns:110px 1fr;align-items:center;gap:12px;
+  padding:14px 18px;border-radius:10px;background:var(--card);border:1px solid var(--border);
+  margin-bottom:8px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s;
+}
+.fp-fight:hover{border-color:rgba(210,10,10,.4);transform:translateX(3px);}
+.fp-result{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:4px;text-align:center;}
+.fp-result.W{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.25);}
+.fp-result.L{background:rgba(210,10,10,.1);color:var(--red);border:1px solid rgba(210,10,10,.2);}
+.fp-result.upcoming{background:rgba(245,197,24,.08);color:var(--gold);border:1px solid rgba(245,197,24,.2);}
+.fp-opp{font-size:15px;color:var(--text);margin-bottom:3px;}
+.fp-opp strong{font-weight:700;}
+.fp-det{font-size:11px;color:var(--text3);}
+@media(max-width:680px){
+  .fp-hero{flex-direction:column;min-height:unset;align-items:center;}
+  .fp-photo-wrap{width:100%;justify-content:center;padding-top:24px;}
+  .fp-photo{width:160px;height:204px;}
+  .fp-info{padding:16px 20px 20px;text-align:center;width:100%;}
+  .fp-meta{justify-content:center;}
+  .fp-stat{padding:14px 12px;}
+  .fp-stat-val{font-size:28px;}
+  .fp-body{padding:24px 14px 60px;}
+  .fp-fight{grid-template-columns:90px 1fr;gap:8px;padding:12px 14px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-back" href="index.html" data-nav="index.html">← Tüm Maçlar</a>
+  <div class="nav-divider"></div>
+  <a class="nav-logo-wrap" href="index.html" data-nav="index.html">
+    <img class="nav-logo-img" src="https://a.espncdn.com/i/teamlogos/leagues/500/ufc.png" alt="UFC">
+  </a>
+  <div class="nav-right">
+    <a class="nav-link" href="rankings.html" data-nav="rankings.html">🏆 Sıralama</a>
+    <a class="nav-link" href="compare.html" data-nav="compare.html">⚔ Karşılaştır</a>
+    <button class="theme-toggle" id="theme-toggle" title="Tema">☀️</button>
+  </div>
+</nav>
+
+<div class="fp-hero">
+  <div class="fp-hero-bg"></div>
+  <div class="fp-photo-wrap">
+    <img class="fp-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4694832.png" alt="Cam Rowston" onerror="this.style.visibility='hidden'">
+  </div>
+  <div class="fp-info">
+    <div class="fp-weight">Middleweight</div>
+    <div class="fp-name">Cam Rowston</div>
+    <div class="fp-meta">
+      <img class="fp-flag" src="https://a.espncdn.com/i/teamlogos/countries/500/aus.png" alt="Australia">
+      <span class="fp-country">Australia</span>
+    </div>
+    <div class="fp-record">14-3-0</div>
+  </div>
+</div>
+
+<div class="fp-stats">
+  <div class="fp-stat"><div class="fp-stat-val green">0</div><div class="fp-stat-lbl">Galibiyet</div></div>
+  <div class="fp-stat"><div class="fp-stat-val red">0</div><div class="fp-stat-lbl">Mağlubiyet</div></div>
+  <div class="fp-stat"><div class="fp-stat-val">0%</div><div class="fp-stat-lbl">Galibiyet Oranı</div></div>
+  <div class="fp-stat"><div class="fp-stat-val">1</div><div class="fp-stat-lbl">Yaklaşan Maç</div></div>
+</div>
+
+<div class="fp-body">
+  <div class="fp-section-title">Maç Geçmişi</div>
+  <a class="fp-fight" href="fight-13-4.html" data-nav="fight-13-4.html">
+      <span class="fp-result upcoming">YAKLAŞAN</span>
+      <div class="fp-opp">vs <strong>Robert Bryczek</strong></div>
+      <div class="fp-det">5/2 - 7:00 AM EDT · UFC Fight Night: Della Maddalena vs. Prates · 2 May 2026</div>
+    </a>
+</div>
+
+<footer>UFC Maç Merkezi</footer>
+<script>
+  function navigate(url){
+    document.body.classList.add('leaving');
+    setTimeout(()=>window.location.href=url,260);
+  }
+  document.querySelectorAll('[data-nav]').forEach(el=>{
+    el.addEventListener('click',e=>{e.preventDefault();navigate(el.dataset.nav);});
+  });
+  (function(){
+    const saved=localStorage.getItem('ufc-theme')||'dark';
+    document.documentElement.dataset.theme=saved==='light'?'light':'';
+    const btn=document.getElementById('theme-toggle');
+    if(!btn)return;
+    btn.textContent=saved==='light'?'🌙':'☀️';
+    btn.addEventListener('click',()=>{
+      const isLight=document.documentElement.dataset.theme==='light';
+      document.documentElement.dataset.theme=isLight?'':'light';
+      localStorage.setItem('ufc-theme',isLight?'dark':'light');
+      btn.textContent=isLight?'☀️':'🌙';
+    });
+  })();
+  function updateCountdowns(){
+    document.querySelectorAll('[data-countdown]').forEach(el=>{
+      const t=new Date(el.dataset.countdown)-Date.now();
+      if(t<=0){el.textContent='BAŞLADI';el.style.color='var(--red)';return;}
+      const d=Math.floor(t/86400000),h=Math.floor((t%86400000)/3600000),
+            m=Math.floor((t%3600000)/60000),s=Math.floor((t%60000)/1000);
+      el.textContent=d>0?d+'G '+h+'S '+m+'D':h+'S '+m+'D '+s+'sn';
+    });
+  }
+  if(document.querySelector('[data-countdown]')){updateCountdowns();setInterval(updateCountdowns,1000);}
+</script>
+</body>
+</html>

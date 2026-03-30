@@ -326,6 +326,26 @@ async function getEventPoster(page, eventName) {
   } catch { return null; }
 }
 
+async function getRankings() {
+  console.log('Sıralamalar alınıyor...');
+  const data = await fetchJson('https://site.api.espn.com/apis/site/v2/sports/mma/ufc/rankings');
+  if (!data?.rankings) return [];
+  return data.rankings.map(div => ({
+    name: div.name || div.shortName,
+    shortName: div.shortName,
+    ranks: (div.ranks || []).map(r => ({
+      current: r.current,
+      previous: r.previous,
+      name: r.athlete?.displayName || r.team?.displayName || '',
+      photo: r.athlete?.headshot?.href || (r.athlete?.id ? `https://a.espncdn.com/i/headshots/mma/players/full/${r.athlete.id}.png` : null),
+      flag: r.athlete?.flag?.href || null,
+      country: r.athlete?.flag?.alt || '',
+      record: r.athlete?.record || r.record || '',
+      id: r.athlete?.id || null
+    }))
+  }));
+}
+
 async function main() {
   const events = await getUFCEvents();
   console.log(`${events.length} etkinlik bulundu`);
@@ -374,6 +394,9 @@ async function main() {
 
     allData.events.push(details);
   }
+
+  allData.rankings = await getRankings();
+  console.log(`${allData.rankings.length} sıralama kategorisi alındı`);
 
   await browser.close();
   fs.writeFileSync('ufc_data.json', JSON.stringify(allData, null, 2));
