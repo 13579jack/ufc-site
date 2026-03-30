@@ -225,30 +225,61 @@
 
 .fcard-footer{padding:9px 22px;border-top:1px solid rgba(255,255,255,.04);font-size:11px;color:#222;text-align:right;letter-spacing:.5px;transition:color .2s;}
 .fcard:hover .fcard-footer{color:var(--text3);}
-@media(max-width:640px){
-  .filter-bar{top:60px;height:auto;padding:8px 12px;flex-wrap:wrap;gap:8px;overflow-x:auto;}
+@media(max-width:680px){
+  /* Filter bar */
+  .filter-bar{top:60px;height:auto;padding:8px 12px;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .fsep{display:none;}
-  .search-input{width:160px;}
-  .weight-select{font-size:10px;padding:6px 8px;}
-  .filter-count{margin-left:0;font-size:10px;}
-  .ev{padding:32px 14px 40px;}
-  .fcard-body{grid-template-columns:1fr 44px 1fr;padding:10px 14px 12px;gap:3px;}
-  .fcard-photo,.fcard-photo-empty{width:64px;height:82px;border-radius:6px;}
-  .fcard:first-child .fcard-photo{width:70px;height:90px;}
-  .fcard-fighter{gap:8px;}
-  .fcard-fname{font-size:13px!important;}
-  .fcard-rec{font-size:10px;}
+  .tab-btn{font-size:11px;padding:5px 10px;}
+  .search-input{width:130px;font-size:12px;}
+  .weight-select{font-size:10px;padding:6px 8px;max-width:120px;}
+  .filter-count{display:none;}
+
+  /* Event section */
+  .ev{padding:24px 12px 32px;}
+  .ev-head{margin-bottom:18px;}
+  .ev-name{font-size:clamp(18px,5.5vw,32px)!important;}
+  .ev-meta{font-size:11px;gap:6px;}
+  .ev-badge{font-size:10px;padding:4px 12px;}
+
+  /* Fight card: stack fighters vertically */
+  .fcard-body{
+    display:flex;flex-direction:column;
+    padding:0;gap:0;
+  }
+  .fcard-fighter{
+    display:flex;flex-direction:row!important;
+    align-items:center;gap:12px;
+    padding:12px 16px;
+  }
+  .fcard-fighter.right{
+    flex-direction:row!important;
+    border-top:1px solid var(--border);
+  }
+  .fcard-fighter.right .fcard-finfo{align-items:flex-start!important;}
+  .fcard-middle{
+    flex-direction:row;justify-content:center;
+    gap:16px;padding:6px 16px;
+    border-top:1px solid rgba(255,255,255,.04);
+    border-bottom:1px solid rgba(255,255,255,.04);
+    background:rgba(255,255,255,.015);
+  }
+  .fcard-photo,.fcard-photo-empty{width:56px;height:72px;border-radius:6px;flex-shrink:0;}
+  .fcard:first-child .fcard-photo{width:60px;height:78px;}
+  .fcard-fname{font-size:15px!important;line-height:1.15;}
+  .fcard-rec{font-size:11px;}
   .fcard-flag{width:22px;height:15px;}
   .fcard-winner-label{font-size:9px;}
   .fcard-vs{font-size:11px;letter-spacing:2px;}
-  .fcard-top{padding:9px 14px 3px;}
-  .fcard-countdown{padding:8px 14px;gap:8px;}
-  .fcd-val{font-size:18px;min-width:70px;}
-  .fcard-vote{padding:10px 14px;}
-  .fv-btn{font-size:13px;}
-  .fcard-footer{padding:7px 14px;font-size:10px;}
-  .ev-name{font-size:clamp(20px,6vw,36px)!important;}
-  .ev-head{margin-bottom:22px;}
+  .fcard-method{font-size:11px;}
+  .fcard-rnd{font-size:9px;}
+  .fcard-top{padding:10px 16px 4px;}
+  .fcard-countdown{padding:8px 16px;gap:8px;}
+  .fcd-val{font-size:18px;min-width:65px;}
+  .fcd-label{font-size:8px;}
+  .fcard-vote{padding:10px 16px;}
+  .fv-btn{font-size:13px;padding:8px;}
+  .fvr-name{width:70px;}
+  .fcard-footer{padding:7px 16px;font-size:10px;}
 }
 </style>
 </head>
@@ -262,7 +293,7 @@
   <div class="nav-right">
     <a class="nav-link" href="compare.html" data-nav="compare.html">⚔ Karşılaştır</a>
     <button class="theme-toggle" id="theme-toggle" title="Tema">☀️</button>
-    <span class="nav-date">Son güncelleme: 30.03.2026 11:32:41</span>
+    <span class="nav-date">Son güncelleme: 30.03.2026 11:35:27</span>
   </div>
 </nav>
 
@@ -5333,7 +5364,7 @@
       </div>
     </section>
 
-<footer>ESPN · 30.03.2026 11:32:41</footer>
+<footer>ESPN · 30.03.2026 11:35:27</footer>
 <script>
   function navigate(url){
     document.body.classList.add('leaving');

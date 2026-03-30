@@ -178,19 +178,27 @@
 .cfr-det{font-size:10px;color:var(--text3);}
 
 .cmp-placeholder{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;font-style:italic;}
-@media(max-width:640px){
-  .cmp-hero{padding:24px 14px 0;}
+@media(max-width:680px){
+  .cmp-hero{padding:20px 12px 0;}
+  .cmp-sub{margin-bottom:20px;font-size:12px;}
+  /* Stack selectors vertically */
   .sel-wrap{grid-template-columns:1fr;border-radius:12px 12px 0 0;}
   .sel-panel+.sel-panel{border-left:none;border-top:1px solid var(--border);}
-  .sel-vs{padding:10px 8px;}
-  .sel-list{height:200px;}
-  .cmp-fh-photo{width:min(80px,20vw);}
-  .cmp-fh{padding:14px 8px;}
-  .cmp-fh-name{font-size:clamp(14px,3.5vw,22px)!important;}
-  .cmp-val{padding:10px 12px;font-size:13px;}
+  .sel-vs{padding:10px 8px;background:rgba(210,10,10,.06);}
+  .sel-vs-txt{font-size:14px;}
+  .sel-list{height:180px;}
+  /* Fighter header */
+  .cmp-fh-photo{width:min(70px,18vw);}
+  .cmp-fh{padding:12px 8px;}
+  .cmp-fh-name{font-size:clamp(13px,3.5vw,20px)!important;}
+  .cmp-vs-col{font-size:13px;}
+  /* Stats rows */
+  .cmp-val{padding:9px 10px;font-size:12px;}
+  .cmp-stat-label{font-size:8px;padding:0 4px;}
+  /* Fight history: stack vertically */
   .cmp-fights-grid{grid-template-columns:1fr;}
   .cmp-fights-col+.cmp-fights-col{border-left:none;border-top:1px solid var(--border);}
-  .cmp-outer{padding:0 14px 60px!important;}
+  .cmp-outer{padding:0 12px 60px!important;}
 }
 </style>
 </head>
