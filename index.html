@@ -223,9 +223,69 @@
 .fvr-fill{height:100%;background:var(--red);border-radius:3px;transition:width .6s cubic-bezier(.22,1,.36,1);}
 .fvr-pct{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--text3);width:32px;text-align:right;flex-shrink:0;}
 
+/* ── FEATURED FIGHT ── */
+.featured-wrap{
+  display:block;text-decoration:none;color:inherit;
+  position:relative;overflow:hidden;
+  background:#060000;
+  border-bottom:2px solid var(--red);
+  transition:filter .2s;
+}
+.featured-wrap:hover{filter:brightness(1.06);}
+.featured-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 100% at 15% 50%,rgba(210,10,10,.18) 0%,transparent 55%),
+    radial-gradient(ellipse 80% 100% at 85% 50%,rgba(210,10,10,.18) 0%,transparent 55%),
+    linear-gradient(180deg,#0c0000 0%,#070707 100%);
+  z-index:0;
+}
+.featured-inner{
+  position:relative;z-index:1;
+  max-width:1100px;margin:0 auto;
+  padding:36px 40px 32px;
+  display:flex;flex-direction:column;align-items:center;gap:20px;
+}
+.featured-badge{
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);
+  padding:5px 16px;border-radius:4px;
+}
+.featured-event{font-size:12px;color:var(--text3);letter-spacing:.5px;text-align:center;}
+.featured-fighters{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;width:100%;}
+.feat-fighter{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.feat-fighter.right{align-items:center;}
+.feat-photo{
+  width:min(180px,22vw);aspect-ratio:3/4;object-fit:cover;object-position:top center;
+  border-radius:10px;background:#0e0e0e;border:1px solid rgba(255,255,255,.08);
+  mask-image:linear-gradient(to bottom,black 60%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,black 60%,transparent 100%);
+}
+.feat-name{
+  font-family:'Barlow Condensed',sans-serif;font-size:clamp(18px,3vw,32px);
+  font-weight:900;text-transform:uppercase;letter-spacing:1px;text-align:center;line-height:1.1;
+}
+.feat-rec{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;color:var(--text3);}
+.feat-flag{width:28px;height:18px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,.15);}
+.feat-mid{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;}
+.feat-vs{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;color:#222;letter-spacing:5px;}
+.feat-wt{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--red);text-align:center;}
+.feat-cd{font-family:'Barlow Condensed',sans-serif;font-size:clamp(18px,3.5vw,32px);font-weight:900;color:var(--red);text-align:center;min-width:120px;}
+.feat-cd-lbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+.featured-cta{font-size:12px;color:var(--text3);letter-spacing:1px;}
+.featured-wrap:hover .featured-cta{color:var(--red);}
+
 .fcard-footer{padding:9px 22px;border-top:1px solid rgba(255,255,255,.04);font-size:11px;color:#222;text-align:right;letter-spacing:.5px;transition:color .2s;}
 .fcard:hover .fcard-footer{color:var(--text3);}
 @media(max-width:680px){
+  .featured-inner{padding:24px 16px 20px;gap:14px;}
+  .featured-fighters{gap:8px;}
+  .feat-photo{width:min(110px,28vw);}
+  .feat-name{font-size:clamp(14px,4.5vw,22px)!important;}
+  .feat-rec{font-size:13px;}
+  .feat-cd{font-size:clamp(16px,5vw,26px)!important;min-width:80px;}
+  .feat-vs{font-size:13px;}
+}
   /* Filter bar */
   .filter-bar{top:60px;height:auto;padding:8px 12px;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .fsep{display:none;}
@@ -294,9 +354,39 @@
     <a class="nav-link" href="rankings.html" data-nav="rankings.html">🏆 Sıralama</a>
     <a class="nav-link" href="compare.html" data-nav="compare.html">⚔ Karşılaştır</a>
     <button class="theme-toggle" id="theme-toggle" title="Tema">☀️</button>
-    <span class="nav-date">Son güncelleme: 30.03.2026 12:07:16</span>
+    <span class="nav-date">Son güncelleme: 30.03.2026 12:16:55</span>
   </div>
 </nav>
+
+
+<a class="featured-wrap" href="fight-11-4.html" data-nav="fight-11-4.html">
+  <div class="featured-bg"></div>
+  <div class="featured-inner">
+    <div class="featured-badge">⭐ ÖNE ÇIKAN MAÇ</div>
+    <div class="featured-event">UFC Fight Night: Burns vs. Malott · 18 Nisan 2026</div>
+    <div class="featured-fighters">
+      <div class="feat-fighter">
+        <img class="feat-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4232775.png" alt="Tanner Boser" onerror="this.style.visibility='hidden'">
+        <div class="feat-name">Tanner Boser</div>
+        <div class="feat-rec">21-10-1</div>
+        <img class="feat-flag" src="https://a.espncdn.com/i/teamlogos/countries/500/can.png" alt="">
+      </div>
+      <div class="feat-mid">
+        <div class="feat-vs">VS</div>
+        <div class="feat-wt">Heavyweight</div>
+        <div class="feat-cd" data-countdown="2026-04-18T23:00Z">...</div>
+        <div class="feat-cd-lbl">Kalan Süre</div>
+      </div>
+      <div class="feat-fighter right">
+        <img class="feat-photo" src="https://a.espncdn.com/i/headshots/mma/players/full/4588192.png" alt="Gokhan Saricam" onerror="this.style.visibility='hidden'">
+        <div class="feat-name">Gokhan Saricam</div>
+        <div class="feat-rec">9-2-0</div>
+        <img class="feat-flag" src="https://a.espncdn.com/i/teamlogos/countries/500/tur.png" alt="">
+      </div>
+    </div>
+    <div class="featured-cta">Maç Detaylarına Git →</div>
+  </div>
+</a>
 
 <div style="background:var(--red);padding:10px 40px;display:flex;align-items:center;gap:16px;overflow-x:auto;white-space:nowrap;border-bottom:1px solid rgba(0,0,0,.3)">
   <a href="#ev-0" style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;flex-shrink:0;padding:2px 0;border-bottom:2px solid transparent;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='transparent'">Adesanya vs. Pyfer</a><span style="color:rgba(255,255,255,.2);font-size:10px">|</span><a href="#ev-1" style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;flex-shrink:0;padding:2px 0;border-bottom:2px solid transparent;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='transparent'">Evloev vs. Murphy</a><span style="color:rgba(255,255,255,.2);font-size:10px">|</span><a href="#ev-2" style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;flex-shrink:0;padding:2px 0;border-bottom:2px solid transparent;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='transparent'">Emmett vs. Vallejos</a><span style="color:rgba(255,255,255,.2);font-size:10px">|</span><a href="#ev-3" style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;flex-shrink:0;padding:2px 0;border-bottom:2px solid transparent;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='transparent'">326: Holloway vs. Oliveira 2</a><span style="color:rgba(255,255,255,.2);font-size:10px">|</span><a href="#ev-4" style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;flex-shrink:0;padding:2px 0;border-bottom:2px solid transparent;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='transparent'">Moreno vs. Kavanagh</a><span style="color:rgba(255,255,255,.2);font-size:10px">|</span><a href="#ev-5" style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;flex-shrink:0;padding:2px 0;border-bottom:2px solid transparent;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='transparent'">Strickland vs. Hernandez</a><span style="color:rgba(255,255,255,.2);font-size:10px">|</span><a href="#ev-6" style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;flex-shrink:0;padding:2px 0;border-bottom:2px solid transparent;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='transparent'">Bautista vs. Oliveira</a><span style="color:rgba(255,255,255,.2);font-size:10px">|</span><a href="#ev-7" style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;flex-shrink:0;padding:2px 0;border-bottom:2px solid transparent;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='transparent'">325: Volkanovski vs. Lopes 2</a>
@@ -5365,7 +5455,7 @@
       </div>
     </section>
 
-<footer>ESPN · 30.03.2026 12:07:16</footer>
+<footer>ESPN · 30.03.2026 12:16:55</footer>
 <script>
   function navigate(url){
     document.body.classList.add('leaving');

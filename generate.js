@@ -128,6 +128,65 @@ function generateIndex(data) {
     data.events.flatMap(e=>e.fights.map(f=>f.weightClass)).filter(Boolean)
   )].sort();
 
+  // Featured fight: find Saricam or first upcoming fight
+  let featuredFight = null, featuredEvent = null, featuredEi = 0, featuredFi = 0;
+  outer: for (let ei=0; ei<data.events.length; ei++) {
+    const ev = data.events[ei];
+    for (let fi=0; fi<ev.fights.length; fi++) {
+      const f = ev.fights[fi];
+      const names = (f.fighter1+' '+f.fighter2).toLowerCase();
+      if (names.includes('saricam') || names.includes('sarican')) {
+        featuredFight = f; featuredEvent = ev; featuredEi = ei; featuredFi = fi;
+        break outer;
+      }
+    }
+  }
+  // Fallback: first upcoming fight
+  if (!featuredFight) {
+    outer2: for (let ei=0; ei<data.events.length; ei++) {
+      if (data.events[ei].status !== 'upcoming') continue;
+      featuredFight = data.events[ei].fights[0];
+      featuredEvent = data.events[ei]; featuredEi = ei; featuredFi = 0;
+      break outer2;
+    }
+  }
+
+  const featuredHtml = featuredFight && featuredEvent ? (()=>{
+    const ev = featuredEvent;
+    const f = featuredFight;
+    const dateStr = ev.date ? new Date(ev.date).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}) : '';
+    return `
+<a class="featured-wrap" href="fight-${featuredEi}-${featuredFi}.html" data-nav="fight-${featuredEi}-${featuredFi}.html">
+  <div class="featured-bg"></div>
+  <div class="featured-inner">
+    <div class="featured-badge">⭐ ÖNE ÇIKAN MAÇ</div>
+    <div class="featured-event">${esc(ev.name)}${dateStr?' · '+dateStr:''}</div>
+    <div class="featured-fighters">
+      <div class="feat-fighter">
+        ${f.fighter1Photo?`<img class="feat-photo" src="${f.fighter1Photo}" alt="${esc(f.fighter1)}" onerror="this.style.visibility='hidden'">`:'<div class="feat-photo"></div>'}
+        <div class="feat-name">${esc(f.fighter1)}</div>
+        ${f.fighter1Record?`<div class="feat-rec">${esc(f.fighter1Record)}</div>`:''}
+        ${f.fighter1Flag?`<img class="feat-flag" src="${f.fighter1Flag}" alt="">`:''}
+      </div>
+      <div class="feat-mid">
+        <div class="feat-vs">VS</div>
+        ${f.weightClass?`<div class="feat-wt">${esc(f.weightClass)}</div>`:''}
+        <div class="feat-cd" data-countdown="${ev.date}">...</div>
+        <div class="feat-cd-lbl">Kalan Süre</div>
+      </div>
+      <div class="feat-fighter right">
+        ${f.fighter2Photo?`<img class="feat-photo" src="${f.fighter2Photo}" alt="${esc(f.fighter2)}" onerror="this.style.visibility='hidden'">`:'<div class="feat-photo"></div>'}
+        <div class="feat-name">${esc(f.fighter2)}</div>
+        ${f.fighter2Record?`<div class="feat-rec">${esc(f.fighter2Record)}</div>`:''}
+        ${f.fighter2Flag?`<img class="feat-flag" src="${f.fighter2Flag}" alt="">`:''}
+      </div>
+    </div>
+    <div class="featured-cta">Maç Detaylarına Git →</div>
+  </div>
+</a>`;
+  })() : '';
+
+
   const eventsHtml = data.events.map((event,ei)=>{
     const isPast = event.status==='past';
     const dateStr = event.date
@@ -360,9 +419,69 @@ ${BASE_STYLE}
 .fvr-fill{height:100%;background:var(--red);border-radius:3px;transition:width .6s cubic-bezier(.22,1,.36,1);}
 .fvr-pct{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--text3);width:32px;text-align:right;flex-shrink:0;}
 
+/* ── FEATURED FIGHT ── */
+.featured-wrap{
+  display:block;text-decoration:none;color:inherit;
+  position:relative;overflow:hidden;
+  background:#060000;
+  border-bottom:2px solid var(--red);
+  transition:filter .2s;
+}
+.featured-wrap:hover{filter:brightness(1.06);}
+.featured-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 100% at 15% 50%,rgba(210,10,10,.18) 0%,transparent 55%),
+    radial-gradient(ellipse 80% 100% at 85% 50%,rgba(210,10,10,.18) 0%,transparent 55%),
+    linear-gradient(180deg,#0c0000 0%,#070707 100%);
+  z-index:0;
+}
+.featured-inner{
+  position:relative;z-index:1;
+  max-width:1100px;margin:0 auto;
+  padding:36px 40px 32px;
+  display:flex;flex-direction:column;align-items:center;gap:20px;
+}
+.featured-badge{
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);
+  padding:5px 16px;border-radius:4px;
+}
+.featured-event{font-size:12px;color:var(--text3);letter-spacing:.5px;text-align:center;}
+.featured-fighters{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;width:100%;}
+.feat-fighter{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.feat-fighter.right{align-items:center;}
+.feat-photo{
+  width:min(180px,22vw);aspect-ratio:3/4;object-fit:cover;object-position:top center;
+  border-radius:10px;background:#0e0e0e;border:1px solid rgba(255,255,255,.08);
+  mask-image:linear-gradient(to bottom,black 60%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,black 60%,transparent 100%);
+}
+.feat-name{
+  font-family:'Barlow Condensed',sans-serif;font-size:clamp(18px,3vw,32px);
+  font-weight:900;text-transform:uppercase;letter-spacing:1px;text-align:center;line-height:1.1;
+}
+.feat-rec{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;color:var(--text3);}
+.feat-flag{width:28px;height:18px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,.15);}
+.feat-mid{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;}
+.feat-vs{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;color:#222;letter-spacing:5px;}
+.feat-wt{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--red);text-align:center;}
+.feat-cd{font-family:'Barlow Condensed',sans-serif;font-size:clamp(18px,3.5vw,32px);font-weight:900;color:var(--red);text-align:center;min-width:120px;}
+.feat-cd-lbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+.featured-cta{font-size:12px;color:var(--text3);letter-spacing:1px;}
+.featured-wrap:hover .featured-cta{color:var(--red);}
+
 .fcard-footer{padding:9px 22px;border-top:1px solid rgba(255,255,255,.04);font-size:11px;color:#222;text-align:right;letter-spacing:.5px;transition:color .2s;}
 .fcard:hover .fcard-footer{color:var(--text3);}
 @media(max-width:680px){
+  .featured-inner{padding:24px 16px 20px;gap:14px;}
+  .featured-fighters{gap:8px;}
+  .feat-photo{width:min(110px,28vw);}
+  .feat-name{font-size:clamp(14px,4.5vw,22px)!important;}
+  .feat-rec{font-size:13px;}
+  .feat-cd{font-size:clamp(16px,5vw,26px)!important;min-width:80px;}
+  .feat-vs{font-size:13px;}
+}
   /* Filter bar */
   .filter-bar{top:60px;height:auto;padding:8px 12px;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .fsep{display:none;}
@@ -434,6 +553,8 @@ ${BASE_STYLE}
     <span class="nav-date">Son güncelleme: ${new Date().toLocaleString('tr-TR')}</span>
   </div>
 </nav>
+
+${featuredHtml}
 
 <div style="background:var(--red);padding:10px 40px;display:flex;align-items:center;gap:16px;overflow-x:auto;white-space:nowrap;border-bottom:1px solid rgba(0,0,0,.3)">
   ${data.events.slice(0,8).map((e,i)=>`<a href="#ev-${i}" style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;flex-shrink:0;padding:2px 0;border-bottom:2px solid transparent;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,.85)';this.style.borderColor='transparent'">${esc(e.name.replace('UFC Fight Night: ','').replace('UFC ',''))}</a>`).join('<span style="color:rgba(255,255,255,.2);font-size:10px">|</span>')}
